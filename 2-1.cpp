@@ -61,18 +61,21 @@ int main() {
 
       const size_t digit_count{digits.size()};
       if (digit_count % 2 == 0) {
-        queue<unsigned char> half_digits;
-        const size_t half_digit_count{digit_count / 2};
-        for (size_t j{0}; j < half_digit_count; j++) {
-          half_digits.push(digits.top());
+        queue<unsigned char> digit_sequence;
+        const size_t digit_sequence_size{digit_count / 2};
+        for (size_t j{0}; j < digit_sequence_size; j++) {
+          digit_sequence.push(digits.top());
           digits.pop();
         }
 
-        size_t j{half_digit_count};
-        while (j < digit_count && half_digits.front() == digits.top()) {
-          half_digits.pop();
-          digits.pop();
-          j++;
+        size_t j{digit_sequence_size};
+        for (; j < digit_count; j++) {
+          if (digit_sequence.front() == digits.top()) {
+            digit_sequence.pop();
+            digits.pop();
+          } else {
+            break;
+          }
         }
 
         if (j == digit_count)

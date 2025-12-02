@@ -62,22 +62,21 @@ int main() {
       const size_t digit_count{digits.size()};
       for (size_t j{2}; j <= digit_count; j++) {
         if (digit_count % j == 0) {
-          stack<unsigned char> current_digits{digits};
-
+          stack<unsigned char> remaining_digits{digits};
           vector<unsigned char> digit_sequence;
           const size_t digit_sequence_size{digit_count / j};
           digit_sequence.reserve(digit_sequence_size);
           for (size_t k{0}; k < digit_sequence_size; k++) {
-            digit_sequence.push_back(current_digits.top());
-            current_digits.pop();
+            digit_sequence.push_back(remaining_digits.top());
+            remaining_digits.pop();
           }
 
           size_t k{1};
           for (; k < j; k++) {
             size_t l{0};
             for (; l < digit_sequence_size; l++) {
-              if (digit_sequence[l] == current_digits.top())
-                current_digits.pop();
+              if (digit_sequence[l] == remaining_digits.top())
+                remaining_digits.pop();
               else
                 break;
             }
