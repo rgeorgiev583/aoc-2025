@@ -27,9 +27,13 @@ int main() {
       return 1;
     }
 
-    istringstream is{line.substr(1)};
+    istringstream line_stream{line.substr(1)};
     int num_rotate;
-    is >> num_rotate;
+    line_stream >> num_rotate;
+    if (!line_stream) {
+      cerr << "error: could not parse number from line" << endl;
+      return 1;
+    }
 
     if (is_left_rotate)
       dial_pos -= num_rotate;

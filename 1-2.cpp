@@ -27,9 +27,13 @@ int main() {
       return 1;
     }
 
-    istringstream is{line.substr(1)};
+    istringstream line_stream{line.substr(1)};
     int num_rotate;
-    is >> num_rotate;
+    line_stream >> num_rotate;
+    if (!line_stream) {
+      cerr << "error: could not parse number from line" << endl;
+      return 1;
+    }
 
     const bool was_dial_pos_positive{dial_pos > 0};
     const bool was_dial_pos_negative{dial_pos < 0};
@@ -40,7 +44,8 @@ int main() {
       dial_pos += num_rotate;
 
     password += abs(dial_pos) / 100;
-    if (was_dial_pos_positive && dial_pos <= 0 || was_dial_pos_negative && dial_pos >= 0)
+    if (was_dial_pos_positive && dial_pos <= 0 ||
+        was_dial_pos_negative && dial_pos >= 0)
       password++;
 
     dial_pos %= 100;
