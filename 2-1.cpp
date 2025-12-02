@@ -10,6 +10,10 @@ int main() {
 
   string line;
   getline(cin, line);
+  if (!cin) {
+    cerr << "error: could not read line from standard input" << endl;
+    return 1;
+  }
   if (line.empty()) {
     cerr << "error: empty line" << endl;
     return 1;
@@ -32,7 +36,12 @@ int main() {
       cerr << "error: could not parse first ID in range" << endl;
       return 1;
     }
-    if (const auto dash{range_stream.get()}; dash != '-') {
+    const auto dash{range_stream.get()};
+    if (!range_stream) {
+      cerr << "error: could not parse dash in range" << endl;
+      return 1;
+    }
+    if (dash != '-') {
       cerr << "error: range is not separated by dash (-)" << endl;
       return 1;
     }

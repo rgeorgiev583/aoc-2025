@@ -9,6 +9,10 @@ int main() {
   while (cin.good()) {
     string line;
     getline(cin, line);
+    if (!cin) {
+      cerr << "error: could not read line from standard input" << endl;
+      return 1;
+    }
     if (line.empty())
       continue;
 
