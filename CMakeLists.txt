@@ -1,2 +1,6 @@
-add_executable(1-1 1-1.cpp)
-add_executable(1-2 1-2.cpp)
+file(GLOB CPP_FILENAMES *.cpp)
+
+foreach(FILENAME ${CPP_FILENAMES})
+    cmake_path(GET FILENAME STEM FILENAME_NO_EXT)
+    add_executable(${FILENAME_NO_EXT} ${FILENAME})
+endforeach()
