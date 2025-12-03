@@ -1,4 +1,3 @@
-#include <algorithm>
 #include <iostream>
 #include <sstream>
 #include <vector>
@@ -58,7 +57,6 @@ int main() {
         digits.push_back(id % 10);
         id /= 10;
       }
-      std::reverse(digits.begin(), digits.end());
 
       const size_t digit_count{digits.size()};
       if (digit_count % 2 == 0) {
