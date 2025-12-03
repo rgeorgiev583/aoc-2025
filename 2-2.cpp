@@ -1,6 +1,6 @@
+#include <algorithm>
 #include <iostream>
 #include <sstream>
-#include <stack>
 #include <vector>
 
 int main() {
@@ -53,31 +53,29 @@ int main() {
 
     for (unsigned long long i{first_id}; i <= last_id; i++) {
       unsigned long long id{i};
-      stack<unsigned char> digits;
+      vector<unsigned char> digits;
       while (id > 0) {
-        digits.push(id % 10);
+        digits.push_back(id % 10);
         id /= 10;
       }
+      std::reverse(digits.begin(), digits.end());
 
       const size_t digit_count{digits.size()};
       for (size_t j{2}; j <= digit_count; j++) {
         if (digit_count % j == 0) {
-          stack<unsigned char> remaining_digits{digits};
+          vector<unsigned char> remaining_digits{digits};
           vector<unsigned char> digit_sequence;
           const size_t digit_sequence_size{digit_count / j};
           digit_sequence.reserve(digit_sequence_size);
-          for (size_t k{0}; k < digit_sequence_size; k++) {
-            digit_sequence.push_back(remaining_digits.top());
-            remaining_digits.pop();
-          }
+          for (size_t k{0}; k < digit_sequence_size; k++)
+            digit_sequence.push_back(remaining_digits[k]);
 
           size_t k{1};
           for (; k < j; k++) {
             size_t l{0};
             for (; l < digit_sequence_size; l++) {
-              if (digit_sequence[l] == remaining_digits.top())
-                remaining_digits.pop();
-              else
+              if (digit_sequence[l] !=
+                  remaining_digits[k * digit_sequence_size + l])
                 break;
             }
 

@@ -1,6 +1,7 @@
+#include <algorithm>
 #include <iostream>
 #include <sstream>
-#include <stack>
+#include <vector>
 
 int main() {
   using namespace std;
@@ -52,27 +53,24 @@ int main() {
 
     for (unsigned long long i{first_id}; i <= last_id; i++) {
       unsigned long long id{i};
-      stack<unsigned char> digits;
+      vector<unsigned char> digits;
       while (id > 0) {
-        digits.push(id % 10);
+        digits.push_back(id % 10);
         id /= 10;
       }
+      std::reverse(digits.begin(), digits.end());
 
       const size_t digit_count{digits.size()};
       if (digit_count % 2 == 0) {
         vector<unsigned char> digit_sequence;
         const size_t digit_sequence_size{digit_count / 2};
         digit_sequence.reserve(digit_sequence_size);
-        for (size_t j{0}; j < digit_sequence_size; j++) {
-          digit_sequence.push_back(digits.top());
-          digits.pop();
-        }
+        for (size_t j{0}; j < digit_sequence_size; j++)
+          digit_sequence.push_back(digits[j]);
 
         size_t j{0};
         for (; j < digit_sequence_size; j++) {
-          if (digit_sequence[j] == digits.top())
-            digits.pop();
-          else
+          if (digit_sequence[j] != digits[digit_sequence_size + j])
             break;
         }
 
