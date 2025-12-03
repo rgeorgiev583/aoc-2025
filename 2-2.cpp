@@ -10,7 +10,7 @@ int main() {
 
   string line;
   getline(cin, line);
-  if (!cin) {
+  if (cin.bad()) {
     cerr << "error: could not read line from standard input" << endl;
     return 1;
   }
