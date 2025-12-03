@@ -1,5 +1,4 @@
 #include <iostream>
-#include <queue>
 #include <sstream>
 #include <stack>
 
@@ -61,24 +60,23 @@ int main() {
 
       const size_t digit_count{digits.size()};
       if (digit_count % 2 == 0) {
-        queue<unsigned char> digit_sequence;
+        vector<unsigned char> digit_sequence;
         const size_t digit_sequence_size{digit_count / 2};
+        digit_sequence.reserve(digit_sequence_size);
         for (size_t j{0}; j < digit_sequence_size; j++) {
-          digit_sequence.push(digits.top());
+          digit_sequence.push_back(digits.top());
           digits.pop();
         }
 
-        size_t j{digit_sequence_size};
-        for (; j < digit_count; j++) {
-          if (digit_sequence.front() == digits.top()) {
-            digit_sequence.pop();
+        size_t j{0};
+        for (; j < digit_sequence_size; j++) {
+          if (digit_sequence[j] == digits.top())
             digits.pop();
-          } else {
+          else
             break;
-          }
         }
 
-        if (j == digit_count)
+        if (j == digit_sequence_size)
           sum_ids += i;
       }
     }
