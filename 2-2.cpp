@@ -61,19 +61,18 @@ int main() {
       const size_t digit_count{digits.size()};
       for (size_t j{2}; j <= digit_count; j++) {
         if (digit_count % j == 0) {
-          vector<unsigned char> remaining_digits{digits};
           vector<unsigned char> digit_sequence;
           const size_t digit_sequence_size{digit_count / j};
           digit_sequence.reserve(digit_sequence_size);
           for (size_t k{0}; k < digit_sequence_size; k++)
-            digit_sequence.push_back(remaining_digits[k]);
+            digit_sequence.push_back(digits[k]);
 
           size_t k{1};
           for (; k < j; k++) {
             size_t l{0};
             for (; l < digit_sequence_size; l++) {
               if (digit_sequence[l] !=
-                  remaining_digits[k * digit_sequence_size + l])
+                  digits[k * digit_sequence_size + l])
                 break;
             }
 
