@@ -60,15 +60,11 @@ int main() {
 
       const size_t digit_count{digits.size()};
       if (digit_count % 2 == 0) {
-        vector<unsigned char> digit_sequence;
         const size_t digit_sequence_size{digit_count / 2};
-        digit_sequence.reserve(digit_sequence_size);
-        for (size_t j{0}; j < digit_sequence_size; j++)
-          digit_sequence.push_back(digits[j]);
 
         size_t j{0};
         for (; j < digit_sequence_size; j++) {
-          if (digit_sequence[j] != digits[digit_sequence_size + j])
+          if (digits[j] != digits[digit_sequence_size + j])
             break;
         }
 
