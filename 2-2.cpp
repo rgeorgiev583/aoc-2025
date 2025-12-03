@@ -7,22 +7,10 @@ int main() {
 
   unsigned long long sum_ids{0};
 
-  string line;
-  getline(cin, line);
-  if (cin.bad()) {
-    cerr << "error: could not read line from standard input" << endl;
-    return 1;
-  }
-  if (line.empty()) {
-    cerr << "error: empty line" << endl;
-    return 1;
-  }
-
-  istringstream line_stream{line};
-  while (line_stream.good()) {
+  while (cin.good()) {
     string range;
-    getline(line_stream, range, ',');
-    if (!line_stream) {
+    getline(cin, range, ',');
+    if (!cin) {
       cerr << "error: could not parse range from line" << endl;
       return 1;
     }
