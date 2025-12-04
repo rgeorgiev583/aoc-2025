@@ -16,7 +16,7 @@ int main() {
       continue;
 
     if (line.length() < 2) {
-      cerr << "error: line has less than two characters" << endl;
+      cerr << "error: line has fewer than two characters" << endl;
       return 1;
     }
 

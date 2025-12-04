@@ -16,7 +16,7 @@ int main() {
       continue;
 
     if (line.length() < 12) {
-      cerr << "error: line has less than twelve characters" << endl;
+      cerr << "error: line has fewer than twelve characters" << endl;
       return 1;
     }
 
