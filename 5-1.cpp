@@ -1,11 +1,15 @@
 #include <iostream>
 #include <sstream>
-#include <unordered_set>
+#include <vector>
 
 int main() {
   using namespace std;
 
-  unordered_set<unsigned long long> fresh_ingredients;
+  struct ingredient_range {
+    unsigned long long first_id;
+    unsigned long long last_id;
+  };
+  vector<ingredient_range> fresh_ingredients;
   while (cin.good()) {
     string line;
     getline(cin, line);
@@ -39,22 +43,35 @@ int main() {
       return 1;
     }
 
-    for (unsigned long long i{first_ingredient_id}; i <= last_ingredient_id;
-         i++)
-      fresh_ingredients.insert(i);
+    fresh_ingredients.push_back({first_ingredient_id, last_ingredient_id});
   }
 
   unsigned long long num_available_fresh_ingredients{0};
   while (cin.good()) {
+    string line;
+    getline(cin, line);
+    if (cin.bad()) {
+      cerr << "error: could not read line from standard input" << endl;
+      return 1;
+    }
+    if (line.empty())
+      break;
+
+    istringstream line_stream{line};
     unsigned long long available_ingredient_id;
-    cin >> available_ingredient_id;
-    if (!cin) {
-      cerr << "error: could not read ingredient ID from standard input" << endl;
+    line_stream >> available_ingredient_id;
+    if (!line_stream) {
+      cerr << "error: could not parse ingredient ID from line" << endl;
       return 1;
     }
 
-    if (fresh_ingredients.count(available_ingredient_id))
-      num_available_fresh_ingredients++;
+    for (const auto &fresh_ingredient_range : fresh_ingredients) {
+      if (available_ingredient_id >= fresh_ingredient_range.first_id &&
+          available_ingredient_id <= fresh_ingredient_range.last_id) {
+        num_available_fresh_ingredients++;
+        break;
+      }
+    }
   }
 
   cout << num_available_fresh_ingredients << endl;
