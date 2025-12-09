@@ -46,50 +46,56 @@ int main() {
     fresh_ingredients.push_back({first_ingredient_id, last_ingredient_id});
   }
 
-  vector<ingredient_range> non_overlapping_fresh_ingredients;
-  for (const auto &fresh_ingredient_range : fresh_ingredients) {
-    bool is_match{false};
-    for (auto &non_overlapping_fresh_ingredient_range :
-         non_overlapping_fresh_ingredients) {
-      if (fresh_ingredient_range.first_id >=
-              non_overlapping_fresh_ingredient_range.first_id &&
-          fresh_ingredient_range.last_id <=
-              non_overlapping_fresh_ingredient_range.last_id) {
-        is_match = true;
+  bool is_at_least_one_match;
+  do {
+    is_at_least_one_match = false;
+    vector<ingredient_range> non_overlapping_fresh_ingredients;
+    for (const auto &fresh_ingredient_range : fresh_ingredients) {
+      bool is_match{false};
+      for (auto &non_overlapping_fresh_ingredient_range :
+           non_overlapping_fresh_ingredients) {
+        if (fresh_ingredient_range.first_id >=
+                non_overlapping_fresh_ingredient_range.first_id &&
+            fresh_ingredient_range.last_id <=
+                non_overlapping_fresh_ingredient_range.last_id) {
+          is_match = true;
+        }
+
+        if (fresh_ingredient_range.first_id <
+                non_overlapping_fresh_ingredient_range.first_id &&
+            fresh_ingredient_range.last_id >=
+                non_overlapping_fresh_ingredient_range.first_id) {
+          non_overlapping_fresh_ingredient_range.first_id =
+              fresh_ingredient_range.first_id;
+          is_match = true;
+        }
+
+        if (fresh_ingredient_range.first_id <=
+                non_overlapping_fresh_ingredient_range.last_id &&
+            fresh_ingredient_range.last_id >
+                non_overlapping_fresh_ingredient_range.last_id) {
+          non_overlapping_fresh_ingredient_range.last_id =
+              fresh_ingredient_range.last_id;
+          is_match = true;
+        }
+
+        if (is_match) {
+          is_at_least_one_match = true;
+          break;
+        }
       }
 
-      if (fresh_ingredient_range.first_id <
-              non_overlapping_fresh_ingredient_range.first_id &&
-          fresh_ingredient_range.last_id >=
-              non_overlapping_fresh_ingredient_range.first_id) {
-        non_overlapping_fresh_ingredient_range.first_id =
-            fresh_ingredient_range.first_id;
-        is_match = true;
-      }
-
-      if (fresh_ingredient_range.first_id <=
-              non_overlapping_fresh_ingredient_range.last_id &&
-          fresh_ingredient_range.last_id >
-              non_overlapping_fresh_ingredient_range.last_id) {
-        non_overlapping_fresh_ingredient_range.last_id =
-            fresh_ingredient_range.last_id;
-        is_match = true;
-      }
-
-      if (is_match)
-        break;
+      if (!is_match)
+        non_overlapping_fresh_ingredients.push_back(fresh_ingredient_range);
     }
 
-    if (!is_match)
-      non_overlapping_fresh_ingredients.push_back(fresh_ingredient_range);
-  }
+    fresh_ingredients = non_overlapping_fresh_ingredients;
+  } while (is_at_least_one_match);
 
   unsigned long long num_fresh_ingredients{0};
-  for (const auto &non_overlapping_fresh_ingredient_range :
-       non_overlapping_fresh_ingredients) {
-    num_fresh_ingredients += non_overlapping_fresh_ingredient_range.last_id -
-                             non_overlapping_fresh_ingredient_range.first_id +
-                             1;
+  for (const auto &fresh_ingredient_range : fresh_ingredients) {
+    num_fresh_ingredients +=
+        fresh_ingredient_range.last_id - fresh_ingredient_range.first_id + 1;
   }
 
   cout << num_fresh_ingredients << endl;
