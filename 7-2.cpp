@@ -3,69 +3,79 @@
 
 using namespace std;
 
-static unsigned travel(const vector<string> &manifold, size_t i, size_t j) {
-  if (i >= manifold.size())
-    return 0;
-
-  unsigned num_timelines{0};
-
-  if (manifold[i][j] == '^') {
-    if (j > 0) {
-      num_timelines += travel(manifold, i + 1, j - 1);
-    }
-    if (j < manifold[i].length() - 1) {
-      num_timelines += 1 + travel(manifold, i + 1, j + 1);
-    }
-  } else {
-    num_timelines += travel(manifold, i + 1, j);
-  }
-
-  return num_timelines;
-}
-
-int main() {
+class teleporter {
   vector<string> manifold;
+  vector<vector<unsigned>> num_timelines;
+  unsigned num_timelines_from_start{0};
 
-  while (cin.good()) {
-    string line;
-    getline(cin, line);
-    if (cin.bad()) {
-      cerr << "error: could not read line from standard input" << endl;
-      return 1;
+  unsigned travel(size_t i, size_t j) {
+    if (i >= manifold.size())
+      return 0;
+
+    if (num_timelines[i][j] > 0)
+      return num_timelines[i][j];
+
+    if (manifold[i][j] == '^') {
+      if (j > 0) {
+        num_timelines[i][j] += travel(i + 1, j - 1);
+      }
+      if (j < manifold[i].length() - 1) {
+        num_timelines[i][j] += 1 + travel(i + 1, j + 1);
+      }
+    } else {
+      num_timelines[i][j] += travel(i + 1, j);
     }
-    if (line.empty())
-      continue;
 
-    if (!manifold.empty() && line.length() != manifold[0].length()) {
-      cerr << "error: line is of different length" << endl;
-      return 1;
-    }
-
-    manifold.push_back(std::move(line));
+    return num_timelines[i][j];
   }
 
-  if (manifold.empty()) {
-    cerr << "error: empty standard input" << endl;
-    return 1;
+public:
+  explicit teleporter(std::istream &input) {
+    while (input.good()) {
+      string line;
+      getline(input, line);
+      if (input.bad()) {
+        throw string{"error: could not read line from input"};
+      }
+      if (line.empty())
+        continue;
+
+      if (!manifold.empty() && line.length() != manifold[0].length()) {
+        throw string{"error: line is of different length"};
+      }
+
+      manifold.push_back(line);
+    }
+
+    if (manifold.empty()) {
+      throw string{"error: empty input"};
+    }
+
+    num_timelines.resize(manifold.size());
+    for (size_t i{0}; i < manifold.size(); i++)
+      num_timelines[i].resize(manifold[i].length());
   }
 
-  unsigned num_timelines{0};
-  for (size_t i{0}; i < manifold.size(); i++) {
-    bool found_particle{false};
+  unsigned travel() {
+    if (num_timelines_from_start > 0)
+      return num_timelines_from_start;
 
-    for (size_t j{0}; j < manifold[i].length(); j++) {
-      if (manifold[i][j] == 'S') {
-        num_timelines = 1 + travel(manifold, i + 1, j);
-        found_particle = true;
-        break;
+    for (size_t i{0}; i < manifold.size(); i++) {
+      for (size_t j{0}; j < manifold[i].length(); j++) {
+        if (manifold[i][j] == 'S') {
+          num_timelines_from_start = num_timelines[i][j] = 1 + travel(i + 1, j);
+          return num_timelines_from_start;
+        }
       }
     }
 
-    if (found_particle)
-      break;
+    return 0;
   }
+};
 
-  cout << num_timelines << endl;
+int main() {
+  teleporter t{cin};
+  cout << t.travel() << endl;
 
   return 0;
 }
