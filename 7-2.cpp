@@ -5,10 +5,10 @@ using namespace std;
 
 class teleporter {
   vector<string> manifold;
-  vector<vector<unsigned>> num_timelines;
-  unsigned num_timelines_from_start{0};
+  vector<vector<unsigned long long>> num_timelines;
+  unsigned long long num_timelines_from_start{0};
 
-  unsigned travel(size_t i, size_t j) {
+  unsigned long long travel(size_t i, size_t j) {
     if (i >= manifold.size())
       return 0;
 
@@ -56,7 +56,7 @@ public:
       num_timelines[i].resize(manifold[i].length());
   }
 
-  unsigned travel() {
+  unsigned long long travel() {
     if (num_timelines_from_start > 0)
       return num_timelines_from_start;
 
