@@ -3,28 +3,21 @@
 
 using namespace std;
 
-static unsigned travel(vector<string> &manifold, size_t i, size_t j) {
+static unsigned travel(const vector<string> &manifold, size_t i, size_t j) {
   unsigned num_timelines{0};
 
   if (i >= manifold.size())
     return num_timelines;
 
-  auto visit{[&manifold](size_t i, size_t j) {
-    manifold[i][j] = '|';
-    unsigned next_num_timelines{travel(manifold, i + 1, j)};
-    manifold[i][j] = '.';
-    return next_num_timelines;
-  }};
-
   if (manifold[i][j] == '^') {
     if (j > 0) {
-      num_timelines += visit(i, j - 1);
+      num_timelines += travel(manifold, i + 1, j - 1);
     }
     if (j < manifold[i].length() - 1) {
-      num_timelines += 1 + visit(i, j + 1);
+      num_timelines += 1 + travel(manifold, i + 1, j + 1);
     }
   } else {
-    num_timelines += visit(i, j);
+    num_timelines += travel(manifold, i + 1, j);
   }
 
   return num_timelines;
@@ -62,7 +55,6 @@ int main() {
 
     for (size_t j{0}; j < manifold[i].length(); j++) {
       if (manifold[i][j] == 'S') {
-        manifold[i][j] = '|';
         num_timelines = 1 + travel(manifold, i + 1, j);
         found_particle = true;
         break;
