@@ -4,10 +4,10 @@
 using namespace std;
 
 static unsigned travel(const vector<string> &manifold, size_t i, size_t j) {
-  unsigned num_timelines{0};
-
   if (i >= manifold.size())
-    return num_timelines;
+    return 0;
+
+  unsigned num_timelines{0};
 
   if (manifold[i][j] == '^') {
     if (j > 0) {
