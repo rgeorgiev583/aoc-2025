@@ -11,9 +11,9 @@ static unsigned travel(vector<string> &manifold, size_t i, size_t j) {
 
   auto visit{[&manifold](size_t i, size_t j) {
     manifold[i][j] = '|';
-    unsigned retval{travel(manifold, i + 1, j)};
+    unsigned next_num_timelines{travel(manifold, i + 1, j)};
     manifold[i][j] = '.';
-    return retval;
+    return next_num_timelines;
   }};
 
   if (manifold[i][j] == '^') {
@@ -31,7 +31,7 @@ static unsigned travel(vector<string> &manifold, size_t i, size_t j) {
 }
 
 int main() {
-  vector<string> lines;
+  vector<string> manifold;
 
   while (cin.good()) {
     string line;
@@ -43,27 +43,27 @@ int main() {
     if (line.empty())
       continue;
 
-    if (!lines.empty() && line.length() != lines[0].length()) {
+    if (!manifold.empty() && line.length() != manifold[0].length()) {
       cerr << "error: line is of different length" << endl;
       return 1;
     }
 
-    lines.push_back(line);
+    manifold.push_back(std::move(line));
   }
 
-  if (lines.empty()) {
+  if (manifold.empty()) {
     cerr << "error: empty standard input" << endl;
     return 1;
   }
 
   unsigned num_timelines{0};
-  for (size_t i{0}; i < lines.size(); i++) {
+  for (size_t i{0}; i < manifold.size(); i++) {
     bool found_particle{false};
 
-    for (size_t j{0}; j < lines[i].length(); j++) {
-      if (lines[i][j] == 'S') {
-        lines[i][j] = '|';
-        num_timelines = 1 + travel(lines, i + 1, j);
+    for (size_t j{0}; j < manifold[i].length(); j++) {
+      if (manifold[i][j] == 'S') {
+        manifold[i][j] = '|';
+        num_timelines = 1 + travel(manifold, i + 1, j);
         found_particle = true;
         break;
       }
