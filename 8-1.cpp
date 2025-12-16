@@ -1,6 +1,8 @@
 #include <algorithm>
 #include <iostream>
+#include <set>
 #include <sstream>
+#include <unordered_set>
 #include <vector>
 
 struct threed_pos {
@@ -13,6 +15,15 @@ struct threed_pos {
     return ((lhs->x - rhs->x) * (lhs->x - rhs->x) +
             (lhs->y - rhs->y) * (lhs->y - rhs->y) +
             (lhs->z - rhs->z) * (lhs->z - rhs->z));
+  }
+};
+
+struct connection {
+  const threed_pos *from;
+  const threed_pos *to;
+
+  friend bool operator<(const connection &lhs, const connection &rhs) {
+    return distance(lhs.from, lhs.to) < distance(rhs.from, rhs.to);
   }
 };
 
@@ -98,93 +109,58 @@ int main() {
     return 1;
   }
 
-  using circuit = vector<const threed_pos *>;
+  using circuit = unordered_set<const threed_pos *>;
   using circuit_container = vector<circuit>;
   circuit_container circuits;
   for (const threed_pos &junction_box : junction_boxes)
     circuits.push_back({&junction_box});
 
-  struct connection {
-    const threed_pos *from;
-    const threed_pos *to;
-  };
-  vector<connection> connections;
-  int num_connections{0};
-  while (num_connections < num_shortest_connections) {
-    auto does_connection_exist_between_junction_boxes{
-        [&connections](const threed_pos *lhs, const threed_pos *rhs) {
-          return any_of(connections.begin(), connections.end(),
-                        [&lhs, &rhs](const connection &conn) {
-                          return conn.from == lhs && conn.to == rhs ||
-                                 conn.from == rhs && conn.to == lhs;
-                        });
-        }};
-    const threed_pos *closest_junction_box1{nullptr};
-    const threed_pos *closest_junction_box2{nullptr};
-    bool is_closest_junction_box_pair_set{false};
-    for (auto i{junction_boxes.begin()}; i != junction_boxes.end() - 1; i++) {
-      for (auto j{i + 1}; j != junction_boxes.end(); j++) {
-        const threed_pos *junction_box_i{&*i};
-        const threed_pos *junction_box_j{&*j};
-        if (does_connection_exist_between_junction_boxes(junction_box_i,
-                                                         junction_box_j))
-          continue;
-
-        if (!is_closest_junction_box_pair_set ||
-            distance(junction_box_i, junction_box_j) <
-                distance(closest_junction_box1, closest_junction_box2)) {
-          closest_junction_box1 = junction_box_i;
-          closest_junction_box2 = junction_box_j;
-          is_closest_junction_box_pair_set = true;
-        }
-      }
+  set<connection> connections;
+  for (auto i{junction_boxes.begin()}; i != junction_boxes.end() - 1; i++) {
+    for (auto j{i + 1}; j != junction_boxes.end(); j++) {
+      connections.insert({&*i, &*j});
     }
-    if (!is_closest_junction_box_pair_set)
-      break;
+  }
 
-    connections.push_back({closest_junction_box1, closest_junction_box2});
-    num_connections++;
-
+  int num_connections{0};
+  for (auto i{connections.begin()};
+       i != connections.end() && num_connections < num_shortest_connections;
+       i++, num_connections++) {
     auto get_existing_circuit_containing_junction_box{
         [&circuits](const threed_pos *junction_box) -> circuit * {
           auto circuit_iter{find_if(circuits.begin(), circuits.end(),
                                     [junction_box](const circuit &c) {
-                                      return find(c.begin(), c.end(),
-                                                  junction_box) != c.end();
+                                      return c.find(junction_box) != c.end();
                                     })};
           if (circuit_iter == circuits.end())
             return nullptr;
 
           return &*circuit_iter;
         }};
-    auto circuit_containing_closest_junction_box1{
-        get_existing_circuit_containing_junction_box(closest_junction_box1)};
-    if (!circuit_containing_closest_junction_box1) {
+
+    const connection &conn{*i};
+    circuit *circuit_from{
+        get_existing_circuit_containing_junction_box(conn.from)};
+    if (!circuit_from) {
       std::cerr << "error: junction box is not in any circuit" << endl;
       return 1;
     }
-    auto circuit_containing_closest_junction_box2{
-        get_existing_circuit_containing_junction_box(closest_junction_box2)};
-    if (!circuit_containing_closest_junction_box2) {
+    circuit *circuit_to{get_existing_circuit_containing_junction_box(conn.to)};
+    if (!circuit_to) {
       std::cerr << "error: junction box is not in any circuit" << endl;
       return 1;
     }
-    if (circuit_containing_closest_junction_box1 ==
-        circuit_containing_closest_junction_box2)
+    if (circuit_from == circuit_to)
       continue;
 
     auto move_junction_box_between_two_circuits{[](circuit &from, circuit &to) {
       if (to.size() >= from.size()) {
-        to.insert(to.end(), from.begin(), from.end());
+        to.insert(from.begin(), from.end());
         from.clear();
       }
     }};
-    move_junction_box_between_two_circuits(
-        *circuit_containing_closest_junction_box2,
-        *circuit_containing_closest_junction_box1);
-    move_junction_box_between_two_circuits(
-        *circuit_containing_closest_junction_box1,
-        *circuit_containing_closest_junction_box2);
+    move_junction_box_between_two_circuits(*circuit_to, *circuit_from);
+    move_junction_box_between_two_circuits(*circuit_from, *circuit_to);
   }
 
   if (circuits.size() < 3) {
