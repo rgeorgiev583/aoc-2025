@@ -95,22 +95,14 @@ int main() {
     for (auto j{i + 1}; j != tiles.end(); j++) {
       auto set_bounds_for_tile{[&min_y_for_x, &max_y_for_x, &min_x_for_y,
                                 &max_x_for_y](const twod_pos &tile) {
-        if (tile.x >= min_y_for_x.size()) {
+        if (tile.x >= min_y_for_x.size())
           min_y_for_x.resize(tile.x + 1, numeric_limits<long>::max());
-          min_y_for_x[tile.x] = tile.y;
-        }
-        if (tile.x >= max_y_for_x.size()) {
+        if (tile.x >= max_y_for_x.size())
           max_y_for_x.resize(tile.x + 1, numeric_limits<long>::min());
-          max_y_for_x[tile.x] = tile.y;
-        }
-        if (tile.y >= min_x_for_y.size()) {
+        if (tile.y >= min_x_for_y.size())
           min_x_for_y.resize(tile.y + 1, numeric_limits<long>::max());
-          min_x_for_y[tile.y] = tile.x;
-        }
-        if (tile.y >= max_x_for_y.size()) {
+        if (tile.y >= max_x_for_y.size())
           max_x_for_y.resize(tile.y + 1, numeric_limits<long>::min());
-          max_x_for_y[tile.y] = tile.x;
-        }
 
         if (tile.y < min_y_for_x[tile.x])
           min_y_for_x[tile.x] = tile.y;
