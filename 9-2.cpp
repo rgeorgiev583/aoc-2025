@@ -1,5 +1,6 @@
 #include <iostream>
 #include <limits>
+#include <optional>
 #include <set>
 #include <sstream>
 #include <vector>
@@ -89,100 +90,92 @@ int main() {
   vector<long> max_y_for_x;
   vector<long> min_x_for_y;
   vector<long> max_x_for_y;
-  for (const twod_pos &tile : tiles) {
-    if (tile.x >= min_y_for_x.size()) {
-      min_y_for_x.resize(tile.x + 1, numeric_limits<long>::max());
-      min_y_for_x[tile.x] = tile.y;
-    }
-    if (tile.x >= max_y_for_x.size()) {
-      max_y_for_x.resize(tile.x + 1, numeric_limits<long>::min());
-      max_y_for_x[tile.x] = tile.y;
-    }
-    if (tile.y >= min_x_for_y.size()) {
-      min_x_for_y.resize(tile.y + 1, numeric_limits<long>::max());
-      min_x_for_y[tile.y] = tile.x;
-    }
-    if (tile.y >= max_x_for_y.size()) {
-      max_x_for_y.resize(tile.y + 1, numeric_limits<long>::min());
-      max_x_for_y[tile.y] = tile.x;
-    }
-
-    if (tile.y < min_y_for_x[tile.x])
-      min_y_for_x[tile.x] = tile.y;
-    if (tile.y > max_y_for_x[tile.x])
-      max_y_for_x[tile.x] = tile.y;
-    if (tile.x < min_x_for_y[tile.y])
-      min_x_for_y[tile.y] = tile.x;
-    if (tile.x > max_x_for_y[tile.y])
-      max_x_for_y[tile.y] = tile.x;
-  }
-
-  long min_y{numeric_limits<long>::max()};
-  for (auto &current_min_y_for_x : min_y_for_x) {
-    if (current_min_y_for_x < min_y)
-      min_y = current_min_y_for_x;
-    else
-      current_min_y_for_x = min_y;
-  }
-
-  long max_y{numeric_limits<long>::min()};
-  for (auto &current_max_y_for_x : max_y_for_x) {
-    if (current_max_y_for_x > max_y)
-      max_y = current_max_y_for_x;
-    else
-      current_max_y_for_x = max_y;
-  }
-
-  long min_x{numeric_limits<long>::max()};
-  for (auto &current_min_x_for_y : min_x_for_y) {
-    if (current_min_x_for_y < min_x)
-      min_x = current_min_x_for_y;
-    else
-      current_min_x_for_y = min_x;
-  }
-
-  long max_x{numeric_limits<long>::min()};
-  for (auto &current_max_x_for_y : max_x_for_y) {
-    if (current_max_x_for_y > max_x)
-      max_x = current_max_x_for_y;
-    else
-      current_max_x_for_y = max_x;
-  }
-
-  set<rectangle> rectangles;
+  multiset<rectangle> rectangles;
   for (auto i{tiles.begin()}; i != tiles.end() - 1; i++) {
     for (auto j{i + 1}; j != tiles.end(); j++) {
+      auto set_bounds_for_tile{[&min_y_for_x, &max_y_for_x, &min_x_for_y,
+                                &max_x_for_y](const twod_pos &tile) {
+        if (tile.x >= min_y_for_x.size()) {
+          min_y_for_x.resize(tile.x + 1, numeric_limits<long>::max());
+          min_y_for_x[tile.x] = tile.y;
+        }
+        if (tile.x >= max_y_for_x.size()) {
+          max_y_for_x.resize(tile.x + 1, numeric_limits<long>::min());
+          max_y_for_x[tile.x] = tile.y;
+        }
+        if (tile.y >= min_x_for_y.size()) {
+          min_x_for_y.resize(tile.y + 1, numeric_limits<long>::max());
+          min_x_for_y[tile.y] = tile.x;
+        }
+        if (tile.y >= max_x_for_y.size()) {
+          max_x_for_y.resize(tile.y + 1, numeric_limits<long>::min());
+          max_x_for_y[tile.y] = tile.x;
+        }
+
+        if (tile.y < min_y_for_x[tile.x])
+          min_y_for_x[tile.x] = tile.y;
+        if (tile.y > max_y_for_x[tile.x])
+          max_y_for_x[tile.x] = tile.y;
+        if (tile.x < min_x_for_y[tile.y])
+          min_x_for_y[tile.y] = tile.x;
+        if (tile.x > max_x_for_y[tile.y])
+          max_x_for_y[tile.y] = tile.x;
+      }};
+
       const twod_pos *corner1{&*i};
       const twod_pos *corner2{&*j};
-      const twod_pos upper_left_corner{min(corner1->x, corner2->x),
-                                       min(corner1->y, corner2->y)};
-      const twod_pos upper_right_corner{max(corner1->x, corner2->x),
-                                        min(corner1->y, corner2->y)};
-      const twod_pos lower_left_corner{min(corner1->x, corner2->x),
-                                       max(corner1->y, corner2->y)};
-      const twod_pos lower_right_corner{max(corner1->x, corner2->x),
-                                        max(corner1->y, corner2->y)};
-      auto is_within_bounds{[&min_y_for_x, &max_y_for_x, &min_x_for_y,
-                             &max_x_for_y](const twod_pos &tile) {
-        return tile.y >= min_y_for_x[tile.x] && tile.y <= max_y_for_x[tile.x] &&
-               tile.x >= min_x_for_y[tile.y] && tile.x <= max_x_for_y[tile.y];
-      }};
-      if (is_within_bounds(upper_left_corner) &&
-          is_within_bounds(upper_right_corner) &&
-          is_within_bounds(lower_left_corner) &&
-          is_within_bounds(lower_right_corner)) {
-        rectangles.insert({corner1, corner2});
+
+      if (corner1->x - corner2->x == 0) {
+        long x{corner1->x};
+        for (long y{min(corner1->y, corner2->y)};
+             y <= max(corner1->y, corner2->y); y++) {
+          set_bounds_for_tile({x, y});
+        }
       }
+      if (corner1->y - corner2->y == 0) {
+        long y{corner1->y};
+        for (long x{min(corner1->x, corner2->x)};
+             x <= max(corner1->x, corner2->x); x++) {
+          set_bounds_for_tile({x, y});
+        }
+      }
+
+      rectangles.insert({corner1, corner2});
     }
   }
 
-  if (rectangles.empty()) {
+  std::optional<unsigned long long> max_area;
+  for (auto i{rectangles.rbegin()}; i != rectangles.rend(); i++) {
+    const twod_pos upper_left_corner{min(i->corner1->x, i->corner2->x),
+                                     min(i->corner1->y, i->corner2->y)};
+    const twod_pos upper_right_corner{max(i->corner1->x, i->corner2->x),
+                                      min(i->corner1->y, i->corner2->y)};
+    const twod_pos lower_left_corner{min(i->corner1->x, i->corner2->x),
+                                     max(i->corner1->y, i->corner2->y)};
+    const twod_pos lower_right_corner{max(i->corner1->x, i->corner2->x),
+                                      max(i->corner1->y, i->corner2->y)};
+    auto is_within_bounds{[&min_y_for_x, &max_y_for_x, &min_x_for_y,
+                           &max_x_for_y](const twod_pos &tile) {
+      return tile.y >= min_y_for_x[tile.x] && tile.y <= max_y_for_x[tile.x] &&
+             tile.x >= min_x_for_y[tile.y] && tile.x <= max_x_for_y[tile.y];
+    }};
+
+    if (is_within_bounds(upper_left_corner) &&
+        is_within_bounds(upper_right_corner) &&
+        is_within_bounds(lower_left_corner) &&
+        is_within_bounds(lower_right_corner)) {
+      max_area = i->area();
+      break;
+    }
+  }
+
+  if (!max_area.has_value()) {
     cerr << "error: there are no rectangles with the given requirements"
          << endl;
     return 1;
   }
 
-  cout << rectangles.rbegin()->area() << endl;
+  cout << *max_area << endl;
 
   return 0;
 }
