@@ -117,15 +117,15 @@ int main() {
       const twod_pos *corner1{&*i};
       const twod_pos *corner2{&*j};
 
-      if (corner1->x - corner2->x == 0) {
-        long x{corner1->x};
+      if (corner1->x == corner2->x) {
+        const long x{corner1->x};
         for (long y{min(corner1->y, corner2->y)};
              y <= max(corner1->y, corner2->y); y++) {
           set_bounds_for_tile({x, y});
         }
       }
-      if (corner1->y - corner2->y == 0) {
-        long y{corner1->y};
+      if (corner1->y == corner2->y) {
+        const long y{corner1->y};
         for (long x{min(corner1->x, corner2->x)};
              x <= max(corner1->x, corner2->x); x++) {
           set_bounds_for_tile({x, y});
