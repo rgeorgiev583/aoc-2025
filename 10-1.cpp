@@ -57,8 +57,6 @@ int main() {
         return 1;
       }
 
-      vector<int> &button_wiring_schematic{
-          m.button_wiring_schematics.emplace_back()};
       istringstream button_wiring_schematic_stream{button_wiring_schematic_str};
 
       const auto left_parenthesis{button_wiring_schematic_stream.get()};
@@ -76,6 +74,8 @@ int main() {
         return 1;
       }
 
+      vector<int> &button_wiring_schematic{
+          m.button_wiring_schematics.emplace_back()};
       while (button_wiring_schematic_stream.good()) {
         string indicator_light_str;
         getline(button_wiring_schematic_stream, indicator_light_str, ',');
@@ -115,10 +115,9 @@ int main() {
 
       for (const vector<int> &button : m.button_wiring_schematics) {
         machine_state new_state{current_state};
-        for (int indicator_light : button) {
+        for (int indicator_light : button)
           new_state.indicator_light_diagram[indicator_light] =
               !new_state.indicator_light_diagram[indicator_light];
-        }
         new_state.num_button_presses++;
         states.push(std::move(new_state));
       }
