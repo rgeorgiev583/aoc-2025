@@ -1,5 +1,6 @@
 #include <iostream>
 #include <queue>
+#include <set>
 #include <sstream>
 #include <vector>
 
@@ -106,6 +107,8 @@ int main() {
     queue<machine_state> states;
     machine_state &init_state{states.emplace()};
     init_state.indicator_light_diagram.resize(m.indicator_light_diagram.size());
+    set<vector<bool>> visited_states;
+    visited_states.insert(init_state.indicator_light_diagram);
     machine_state current_state;
     while (!states.empty()) {
       current_state = std::move(states.front());
@@ -118,6 +121,11 @@ int main() {
         for (int indicator_light : button)
           new_state.indicator_light_diagram[indicator_light] =
               !new_state.indicator_light_diagram[indicator_light];
+
+        if (visited_states.count(new_state.indicator_light_diagram))
+          continue;
+
+        visited_states.insert(new_state.indicator_light_diagram);
         new_state.num_button_presses++;
         states.push(std::move(new_state));
       }

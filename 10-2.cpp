@@ -1,5 +1,6 @@
 #include <iostream>
 #include <queue>
+#include <set>
 #include <sstream>
 #include <vector>
 
@@ -125,6 +126,8 @@ int main() {
     queue<machine_state> states;
     machine_state &init_state{states.emplace()};
     init_state.joltage_counters.resize(m.joltage_requirements.size());
+    set<vector<int>> visited_states;
+    visited_states.insert(init_state.joltage_counters);
     machine_state current_state;
     while (!states.empty()) {
       current_state = std::move(states.front());
@@ -136,6 +139,11 @@ int main() {
         machine_state new_state{current_state};
         for (int joltage_counter : button)
           new_state.joltage_counters[joltage_counter]++;
+
+        if (visited_states.count(new_state.joltage_counters))
+          continue;
+
+        visited_states.insert(new_state.joltage_counters);
         new_state.num_button_presses++;
         states.push(std::move(new_state));
       }
