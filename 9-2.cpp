@@ -18,10 +18,6 @@ struct twod_pos {
   friend unsigned long distance_y(const twod_pos *lhs, const twod_pos *rhs) {
     return abs(lhs->y - rhs->y) + 1;
   }
-
-  friend bool operator==(const twod_pos &lhs, const twod_pos &rhs) {
-    return lhs.x == rhs.x && lhs.y == rhs.y;
-  }
 };
 
 struct rectangle {
@@ -141,7 +137,6 @@ int main() {
   }
 
   std::optional<unsigned long long> max_area;
-  size_t pos{0};
   for (auto i{rectangles.rbegin()}; i != rectangles.rend(); i++) {
     const twod_pos upper_left_corner{min(i->corner1->x, i->corner2->x),
                                      min(i->corner1->y, i->corner2->y)};
@@ -151,10 +146,6 @@ int main() {
                                      max(i->corner1->y, i->corner2->y)};
     const twod_pos lower_right_corner{max(i->corner1->x, i->corner2->x),
                                       max(i->corner1->y, i->corner2->y)};
-
-    const unsigned long long area{i->area()};
-    cout << "area: " << area << endl;
-
     auto is_within_bounds{[&min_y_for_x, &max_y_for_x, &min_x_for_y,
                            &max_x_for_y](const twod_pos &tile) {
       return tile.y >= min_y_for_x[tile.x] && tile.y <= max_y_for_x[tile.x] &&
@@ -165,16 +156,9 @@ int main() {
         is_within_bounds(upper_right_corner) &&
         is_within_bounds(lower_left_corner) &&
         is_within_bounds(lower_right_corner)) {
-      cout << "within bounds" << endl;
-      cout << "position in set: " << pos << endl;
-
-      if (area > max_area)
-        max_area = area;
+      max_area = i->area();
+      break;
     }
-
-    cout << endl;
-
-    pos++;
   }
 
   if (!max_area.has_value()) {
@@ -183,7 +167,7 @@ int main() {
     return 1;
   }
 
-  cout << "max area: " << *max_area << endl;
+  cout << *max_area << endl;
 
   return 0;
 }
