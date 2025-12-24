@@ -1,4 +1,3 @@
-#include <algorithm>
 #include <iostream>
 #include <limits>
 #include <optional>
@@ -91,8 +90,6 @@ int main() {
     return 1;
   }
 
-  cout << endl;
-
   vector<long> min_y_for_x;
   vector<long> max_y_for_x;
   vector<long> min_x_for_y;
@@ -143,44 +140,6 @@ int main() {
     }
   }
 
-  long max_y{numeric_limits<long>::min()};
-  for (long current_max_y_for_x : max_y_for_x) {
-    if (current_max_y_for_x > max_y)
-      max_y = current_max_y_for_x;
-  }
-
-  long max_x{numeric_limits<long>::min()};
-  for (long current_max_x_for_y : max_x_for_y) {
-    if (current_max_x_for_y > max_x)
-      max_x = current_max_x_for_y;
-  }
-
-  cout << "tiles:" << endl;
-  for (long i{0}; i <= max_y; i++) {
-    for (long j{0}; j <= max_x; j++) {
-      if (find(tiles.begin(), tiles.end(), twod_pos{j, i}) != tiles.end())
-        cout << '#';
-      else
-        cout << '.';
-    }
-    cout << endl;
-  }
-  cout << endl;
-
-  cout << "loop:" << endl;
-  for (long i{0}; i <= max_y; i++) {
-    for (long j{0}; j <= max_x; j++) {
-      if (i >= min_y_for_x[j] && i <= max_y_for_x[j] && j >= min_x_for_y[i] &&
-          j <= max_x_for_y[i])
-        cout << '#';
-      else
-        cout << '.';
-    }
-    cout << endl;
-  }
-  cout << endl;
-
-  cout << "rectangles:" << endl << endl;
   std::optional<unsigned long long> max_area;
   size_t pos{0};
   for (auto i{rectangles.rbegin()}; i != rectangles.rend(); i++) {
@@ -192,17 +151,6 @@ int main() {
                                      max(i->corner1->y, i->corner2->y)};
     const twod_pos lower_right_corner{max(i->corner1->x, i->corner2->x),
                                       max(i->corner1->y, i->corner2->y)};
-
-    for (long j{0}; j <= max_y; j++) {
-      for (long k{0}; k <= max_x; k++) {
-        if (j >= upper_left_corner.y && j <= lower_right_corner.y &&
-            k >= upper_left_corner.x && k <= lower_right_corner.x)
-          cout << '#';
-        else
-          cout << '.';
-      }
-      cout << endl;
-    }
 
     const unsigned long long area{i->area()};
     cout << "area: " << area << endl;
