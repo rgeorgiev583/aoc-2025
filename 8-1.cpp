@@ -5,13 +5,12 @@
 #include <unordered_set>
 #include <vector>
 
-struct threed_pos {
+struct point {
   long x;
   long y;
   long z;
 
-  friend unsigned long long distance(const threed_pos *lhs,
-                                     const threed_pos *rhs) {
+  friend unsigned long long distance(const point *lhs, const point *rhs) {
     return ((lhs->x - rhs->x) * (lhs->x - rhs->x) +
             (lhs->y - rhs->y) * (lhs->y - rhs->y) +
             (lhs->z - rhs->z) * (lhs->z - rhs->z));
@@ -19,8 +18,8 @@ struct threed_pos {
 };
 
 struct connection {
-  const threed_pos *from;
-  const threed_pos *to;
+  const point *from;
+  const point *to;
 
   friend bool operator<(const connection &lhs, const connection &rhs) {
     return distance(lhs.from, lhs.to) < distance(rhs.from, rhs.to);
@@ -43,63 +42,65 @@ int main() {
     return 1;
   }
 
-  vector<threed_pos> junction_boxes;
+  vector<point> junction_boxes;
   while (cin.good()) {
-    string line;
-    getline(cin, line);
+    string junction_box_str;
+    getline(cin, junction_box_str);
     if (cin.bad()) {
-      cerr << "error: could not read line from standard input" << endl;
+      cerr << "error: could not read junction box from standard input" << endl;
       return 1;
     }
-    if (line.empty())
+    if (junction_box_str.empty())
       continue;
 
-    istringstream pos_stream{line};
+    istringstream junction_box_stream{junction_box_str};
 
-    auto parse_comma{[&pos_stream]() {
-      const auto comma{pos_stream.get()};
-      if (!pos_stream) {
+    auto parse_comma{[&junction_box_str, &junction_box_stream]() {
+      const auto comma{junction_box_stream.get()};
+      if (!junction_box_stream) {
         cerr << "error: could not parse comma between coordinates of junction "
-                "box position"
-             << endl;
+                "box position `"
+             << junction_box_str << "`" << endl;
         return false;
       }
       if (comma != ',') {
-        cerr << "error: coordinates of junction box position are not separated "
-                "by comma (,)"
-             << endl;
+        cerr << "error: coordinates of junction box position `"
+             << junction_box_str
+             << "` are not separated "
+                "by comma (,): they are separated by `"
+             << comma << "` instead" << endl;
         return false;
       }
 
       return true;
     }};
 
-    threed_pos &junction_box{junction_boxes.emplace_back()};
+    point &junction_box{junction_boxes.emplace_back()};
 
-    pos_stream >> junction_box.x;
-    if (!pos_stream) {
-      cerr << "error: could not parse X coordinate of junction box position"
-           << endl;
+    junction_box_stream >> junction_box.x;
+    if (!junction_box_stream) {
+      cerr << "error: could not parse X coordinate of junction box position `"
+           << junction_box_str << "`" << endl;
       return 1;
     }
 
     if (!parse_comma())
       return 1;
 
-    pos_stream >> junction_box.y;
-    if (!pos_stream) {
-      cerr << "error: could not parse Y coordinate of junction box position"
-           << endl;
+    junction_box_stream >> junction_box.y;
+    if (!junction_box_stream) {
+      cerr << "error: could not parse Y coordinate of junction box position `"
+           << junction_box_str << "`" << endl;
       return 1;
     }
 
     if (!parse_comma())
       return 1;
 
-    pos_stream >> junction_box.z;
-    if (!pos_stream) {
-      cerr << "error: could not parse Z coordinate of junction box position"
-           << endl;
+    junction_box_stream >> junction_box.z;
+    if (!junction_box_stream) {
+      cerr << "error: could not parse Z coordinate of junction box position `"
+           << junction_box_str << "`" << endl;
       return 1;
     }
   }
@@ -109,10 +110,10 @@ int main() {
     return 1;
   }
 
-  using circuit = unordered_set<const threed_pos *>;
+  using circuit = unordered_set<const point *>;
   using circuit_container = vector<circuit>;
   circuit_container circuits;
-  for (const threed_pos &junction_box : junction_boxes)
+  for (const point &junction_box : junction_boxes)
     circuits.push_back({&junction_box});
 
   set<connection> connections;
@@ -122,12 +123,12 @@ int main() {
     }
   }
 
-  int num_connections{0};
+  unsigned int num_connections{0};
   for (auto i{connections.begin()};
        i != connections.end() && num_connections < num_shortest_connections;
        i++, num_connections++) {
     auto get_existing_circuit_containing_junction_box{
-        [&circuits](const threed_pos *junction_box) -> circuit * {
+        [&circuits](const point *junction_box) -> circuit * {
           auto circuit_iter{find_if(circuits.begin(), circuits.end(),
                                     [junction_box](const circuit &c) {
                                       return c.find(junction_box) != c.end();
@@ -164,7 +165,8 @@ int main() {
   }
 
   if (circuits.size() < 3) {
-    cerr << "error: number of circuits is less than three" << endl;
+    cerr << "error: number of circuits (" << circuits.size()
+         << ") is less than three" << endl;
     return 1;
   }
 

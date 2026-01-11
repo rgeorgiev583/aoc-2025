@@ -29,7 +29,8 @@ int main() {
     }
 
     if (!problems.empty() && row.size() != problems[0].size()) {
-      cerr << "warning: row has a different number of fields" << endl;
+      cerr << "error: row `" << line << "` has a different number of fields ("
+           << row.size() << ") from " << problems[0].size() << endl;
       return 1;
     }
 
@@ -41,12 +42,13 @@ int main() {
     return 1;
   }
 
-  auto parse_number{[](const string &p_str) -> unsigned long long {
-    istringstream str_stream{p_str};
+  auto parse_number{[](const string &str) -> unsigned long long {
+    istringstream str_stream{str};
     unsigned long long number;
     str_stream >> number;
     if (!str_stream) {
-      cerr << "error: could not parse number from field" << endl;
+      cerr << "error: could not parse number from field `" << str << "`"
+           << endl;
       return 1;
     }
 

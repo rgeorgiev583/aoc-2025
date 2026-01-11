@@ -11,7 +11,7 @@ int main() {
     string range;
     getline(cin, range, ',');
     if (!cin) {
-      cerr << "error: could not parse range from line" << endl;
+      cerr << "error: could not read range from standard input" << endl;
       return 1;
     }
 
@@ -20,21 +20,24 @@ int main() {
     unsigned long long last_id;
     range_stream >> first_id;
     if (!range_stream) {
-      cerr << "error: could not parse first ID in range" << endl;
+      cerr << "error: could not parse first ID in range `" << range << "`"
+           << endl;
       return 1;
     }
     const auto dash{range_stream.get()};
     if (!range_stream) {
-      cerr << "error: could not parse dash in range" << endl;
+      cerr << "error: could not parse dash in range `" << range << "`" << endl;
       return 1;
     }
     if (dash != '-') {
-      cerr << "error: range is not separated by dash (-)" << endl;
+      cerr << "error: range `" << range << "` is not separated by dash (-)"
+           << endl;
       return 1;
     }
     range_stream >> last_id;
     if (!range_stream) {
-      cerr << "error: could not parse last ID in range" << endl;
+      cerr << "error: could not parse last ID in range `" << range << "`"
+           << endl;
       return 1;
     }
 

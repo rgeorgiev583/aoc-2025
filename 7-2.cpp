@@ -41,7 +41,9 @@ public:
         continue;
 
       if (!manifold.empty() && line.length() != manifold[0].length()) {
-        throw string{"error: line is of different length"};
+        throw string{"error: line `"} + line +
+            string{"` is of different length ("} + to_string(line.length()) +
+            string{") from "} + to_string(manifold[0].length());
       }
 
       manifold.push_back(line);

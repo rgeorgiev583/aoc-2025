@@ -5,41 +5,44 @@
 int main() {
   using namespace std;
 
-  struct ingredient_range {
+  struct id_range {
     unsigned long long first_id;
     unsigned long long last_id;
   };
-  vector<ingredient_range> fresh_ingredients;
+  vector<id_range> fresh_ingredients;
   while (cin.good()) {
-    string line;
-    getline(cin, line);
+    string range;
+    getline(cin, range);
     if (cin.bad()) {
-      cerr << "error: could not read line from standard input" << endl;
+      cerr << "error: could not read range from standard input" << endl;
       return 1;
     }
-    if (line.empty())
+    if (range.empty())
       break;
 
-    istringstream range_stream{line};
+    istringstream range_stream{range};
     unsigned long long first_ingredient_id;
     unsigned long long last_ingredient_id;
     range_stream >> first_ingredient_id;
     if (!range_stream) {
-      cerr << "error: could not parse first ID in range" << endl;
+      cerr << "error: could not parse first ID in range `" << range << "`"
+           << endl;
       return 1;
     }
     const auto dash{range_stream.get()};
     if (!range_stream) {
-      cerr << "error: could not parse dash in range" << endl;
+      cerr << "error: could not parse dash in range `" << range << "`" << endl;
       return 1;
     }
     if (dash != '-') {
-      cerr << "error: range is not separated by dash (-)" << endl;
+      cerr << "error: range `" << range << "` is not separated by dash (-)"
+           << endl;
       return 1;
     }
     range_stream >> last_ingredient_id;
     if (!range_stream) {
-      cerr << "error: could not parse last ID in range" << endl;
+      cerr << "error: could not parse last ID in range `" << range << "`"
+           << endl;
       return 1;
     }
 
@@ -48,20 +51,20 @@ int main() {
 
   unsigned long long num_available_fresh_ingredients{0};
   while (cin.good()) {
-    string line;
-    getline(cin, line);
+    string id;
+    getline(cin, id);
     if (cin.bad()) {
-      cerr << "error: could not read line from standard input" << endl;
+      cerr << "error: could not read ingredient ID from standard input" << endl;
       return 1;
     }
-    if (line.empty())
+    if (id.empty())
       break;
 
-    istringstream line_stream{line};
+    istringstream id_stream{id};
     unsigned long long available_ingredient_id;
-    line_stream >> available_ingredient_id;
-    if (!line_stream) {
-      cerr << "error: could not parse ingredient ID from line" << endl;
+    id_stream >> available_ingredient_id;
+    if (!id_stream) {
+      cerr << "error: could not parse ingredient ID" << endl;
       return 1;
     }
 

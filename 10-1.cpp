@@ -13,36 +13,37 @@ int main() {
   };
   vector<machine> machines;
   while (cin.good()) {
-    string line;
-    getline(cin, line);
+    string machine_str;
+    getline(cin, machine_str);
     if (cin.bad()) {
-      cerr << "error: could not read line from standard input" << endl;
+      cerr << "error: could not read machine from standard input" << endl;
       return 1;
     }
-    if (line.empty())
+    if (machine_str.empty())
       continue;
 
-    istringstream machine_stream{line};
+    istringstream machine_stream{machine_str};
 
     machine &m{machines.emplace_back()};
 
     const auto left_square_bracket{machine_stream.get()};
     if (!machine_stream) {
       cerr << "error: could not parse the `[` in the beginning of the "
-              "indicator light diagram"
-           << endl;
+              "indicator light diagram for machine `"
+           << machine_str << "`" << endl;
       return 1;
     }
     if (left_square_bracket != '[') {
-      cerr << "error: the indicator light diagram does not begin with `[`"
-           << endl;
+      cerr << "error: the indicator light diagram for machine `" << machine_str
+           << " ` does not begin with `[`" << endl;
       return 1;
     }
 
     string indicator_light_diagram_str;
     getline(machine_stream, indicator_light_diagram_str, ']');
     if (!machine_stream) {
-      cerr << "error: could not parse the indicator light diagram" << endl;
+      cerr << "error: could not parse the indicator light diagram for machine "
+           << machine_str << "`" << endl;
       return 1;
     }
 
@@ -54,7 +55,8 @@ int main() {
       string button_wiring_schematic_str;
       machine_stream >> button_wiring_schematic_str;
       if (!machine_stream) {
-        cerr << "error: could not parse button wiring schematic" << endl;
+        cerr << "error: could not parse button wiring schematic for machine `"
+             << machine_str << "`" << endl;
         return 1;
       }
 
@@ -63,32 +65,39 @@ int main() {
       const auto left_parenthesis{button_wiring_schematic_stream.get()};
       if (!machine_stream) {
         cerr << "error: could not parse the `(` in the beginning of the "
-                "button wiring schematic"
-             << endl;
+                "button wiring schematic `"
+             << button_wiring_schematic_str << "` for machine `" << machine_str
+             << "`" << endl;
         return 1;
       }
       if (left_parenthesis == '{')
         break;
       else if (left_parenthesis != '(') {
-        cerr << "error: the button wiring schematic does not begin with `(`"
-             << endl;
+        cerr << "error: the button wiring schematic `"
+             << button_wiring_schematic_str << "` for machine `" << machine_str
+             << "` does not begin with `(`: it begins with `"
+             << left_parenthesis << "` instead" << endl;
         return 1;
       }
 
       vector<int> &button_wiring_schematic{
           m.button_wiring_schematics.emplace_back()};
       while (button_wiring_schematic_stream.good()) {
-        string indicator_light_str;
-        getline(button_wiring_schematic_stream, indicator_light_str, ',');
+        string button_indicator_light_str;
+        getline(button_wiring_schematic_stream, button_indicator_light_str,
+                ',');
         if (!button_wiring_schematic_stream) {
-          cerr << "error: could not parse indicator light" << endl;
+          cerr << "error: could not parse indicator light index in button "
+                  "wiring schematic `"
+               << button_wiring_schematic_str << "` for machine `"
+               << machine_str << "`" << endl;
           return 1;
         }
 
-        istringstream indicator_light_stream{indicator_light_str};
-        int indicator_light_index;
-        indicator_light_stream >> indicator_light_index;
-        button_wiring_schematic.push_back(indicator_light_index);
+        istringstream button_indicator_light_stream{button_indicator_light_str};
+        int button_indicator_light_index;
+        button_indicator_light_stream >> button_indicator_light_index;
+        button_wiring_schematic.push_back(button_indicator_light_index);
       }
     }
   }
@@ -98,10 +107,10 @@ int main() {
     return 1;
   }
 
-  int total_fewest_button_presses{0};
+  unsigned int total_fewest_button_presses{0};
   struct machine_state {
     vector<bool> indicator_light_diagram;
-    int num_button_presses;
+    unsigned int num_button_presses;
   };
   for (const machine &m : machines) {
     queue<machine_state> states;

@@ -4,55 +4,57 @@
 int main() {
   using namespace std;
 
-  int dial_pos{50};
-  int password{0};
+  int dial_number{50};
+  unsigned int password{0};
   while (cin.good()) {
-    string line;
-    getline(cin, line);
+    string rotation;
+    getline(cin, rotation);
     if (cin.bad()) {
-      cerr << "error: could not read line from standard input" << endl;
+      cerr << "error: could not read rotation from standard input" << endl;
       return 1;
     }
-    if (line.empty())
+    if (rotation.empty())
       continue;
 
-    bool is_left_rotate;
-    switch (line[0]) {
+    bool is_left_rotation;
+    switch (rotation[0]) {
     case 'L':
-      is_left_rotate = true;
+      is_left_rotation = true;
       break;
 
     case 'R':
-      is_left_rotate = false;
+      is_left_rotation = false;
       break;
 
     default:
-      cerr << "error: invalid first character on line" << endl;
+      cerr << "error: invalid first character of rotation `" << rotation
+           << "`: " << rotation[0] << endl;
       return 1;
     }
 
-    istringstream line_stream{line.substr(1)};
-    int num_rotate;
-    line_stream >> num_rotate;
-    if (!line_stream) {
-      cerr << "error: could not parse number from line" << endl;
+    istringstream rotation_stream{rotation.substr(1)};
+    int rotation_distance;
+    rotation_stream >> rotation_distance;
+    if (!rotation_stream) {
+      cerr << "error: could not parse distance from rotation `" << rotation
+           << "`" << endl;
       return 1;
     }
 
-    const bool was_dial_pos_positive{dial_pos > 0};
-    const bool was_dial_pos_negative{dial_pos < 0};
+    const bool was_dial_number_positive{dial_number > 0};
+    const bool was_dial_number_negative{dial_number < 0};
 
-    if (is_left_rotate)
-      dial_pos -= num_rotate;
+    if (is_left_rotation)
+      dial_number -= rotation_distance;
     else
-      dial_pos += num_rotate;
+      dial_number += rotation_distance;
 
-    password += abs(dial_pos) / 100;
-    if (was_dial_pos_positive && dial_pos <= 0 ||
-        was_dial_pos_negative && dial_pos >= 0)
+    password += abs(dial_number) / 100;
+    if (was_dial_number_positive && dial_number <= 0 ||
+        was_dial_number_negative && dial_number >= 0)
       password++;
 
-    dial_pos %= 100;
+    dial_number %= 100;
   }
 
   cout << password << endl;

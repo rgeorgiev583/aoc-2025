@@ -7,22 +7,22 @@
 
 using namespace std;
 
-struct twod_pos {
+struct point {
   long x;
   long y;
 
-  friend unsigned long distance_x(const twod_pos *lhs, const twod_pos *rhs) {
+  friend unsigned long distance_x(const point *lhs, const point *rhs) {
     return abs(lhs->x - rhs->x) + 1;
   }
 
-  friend unsigned long distance_y(const twod_pos *lhs, const twod_pos *rhs) {
+  friend unsigned long distance_y(const point *lhs, const point *rhs) {
     return abs(lhs->y - rhs->y) + 1;
   }
 };
 
 struct rectangle {
-  const twod_pos *corner1;
-  const twod_pos *corner2;
+  const point *corner1;
+  const point *corner2;
 
   unsigned long long area() const {
     return distance_x(corner1, corner2) * distance_y(corner1, corner2);
@@ -34,44 +34,47 @@ struct rectangle {
 };
 
 int main() {
-  vector<twod_pos> tiles;
+  vector<point> tiles;
   while (cin.good()) {
-    string line;
-    getline(cin, line);
+    string tile_str;
+    getline(cin, tile_str);
     if (cin.bad()) {
-      cerr << "error: could not read line from standard input" << endl;
+      cerr << "error: could not read tile from standard input" << endl;
       return 1;
     }
-    if (line.empty())
+    if (tile_str.empty())
       continue;
 
-    istringstream pos_stream{line};
+    istringstream tile_stream{tile_str};
 
-    twod_pos &tile{tiles.emplace_back()};
+    point &tile{tiles.emplace_back()};
 
-    pos_stream >> tile.x;
-    if (!pos_stream) {
-      cerr << "error: could not parse X coordinate of tile position" << endl;
+    tile_stream >> tile.x;
+    if (!tile_stream) {
+      cerr << "error: could not parse X coordinate of tile position `"
+           << tile_str << "`" << endl;
       return 1;
     }
 
-    const auto comma{pos_stream.get()};
-    if (!pos_stream) {
-      cerr
-          << "error: could not parse comma between coordinates of tile position"
-          << endl;
+    const auto comma{tile_stream.get()};
+    if (!tile_stream) {
+      cerr << "error: could not parse comma between coordinates of tile "
+              "position `"
+           << tile_str << "`" << endl;
       return 1;
     }
     if (comma != ',') {
-      cerr << "error: coordinates of tile position are not separated by comma "
-              "(,)"
-           << endl;
+      cerr << "error: coordinates of tile position `" << tile_str
+           << "` are not separated by comma "
+              "(,): they are separated by `"
+           << comma << "` instead" << endl;
       return 1;
     }
 
-    pos_stream >> tile.y;
-    if (!pos_stream) {
-      cerr << "error: could not parse Y coordinate of tile position" << endl;
+    tile_stream >> tile.y;
+    if (!tile_stream) {
+      cerr << "error: could not parse Y coordinate of tile position `"
+           << tile_str << "`" << endl;
       return 1;
     }
   }
@@ -94,7 +97,7 @@ int main() {
   for (auto i{tiles.begin()}; i != tiles.end() - 1; i++) {
     for (auto j{i + 1}; j != tiles.end(); j++) {
       auto set_bounds_for_tile{[&min_y_for_x, &max_y_for_x, &min_x_for_y,
-                                &max_x_for_y](const twod_pos &tile) {
+                                &max_x_for_y](const point &tile) {
         if (tile.x >= min_y_for_x.size())
           min_y_for_x.resize(tile.x + 1, numeric_limits<long>::max());
         if (tile.x >= max_y_for_x.size())
@@ -114,8 +117,8 @@ int main() {
           max_x_for_y[tile.y] = tile.x;
       }};
 
-      const twod_pos *corner1{&*i};
-      const twod_pos *corner2{&*j};
+      const point *corner1{&*i};
+      const point *corner2{&*j};
 
       if (corner1->x == corner2->x) {
         const long x{corner1->x};
@@ -138,16 +141,16 @@ int main() {
 
   std::optional<unsigned long long> max_area;
   for (auto i{rectangles.rbegin()}; i != rectangles.rend(); i++) {
-    const twod_pos upper_left_corner{min(i->corner1->x, i->corner2->x),
+    const point upper_left_corner{min(i->corner1->x, i->corner2->x),
                                      min(i->corner1->y, i->corner2->y)};
-    const twod_pos upper_right_corner{max(i->corner1->x, i->corner2->x),
+    const point upper_right_corner{max(i->corner1->x, i->corner2->x),
                                       min(i->corner1->y, i->corner2->y)};
-    const twod_pos lower_left_corner{min(i->corner1->x, i->corner2->x),
+    const point lower_left_corner{min(i->corner1->x, i->corner2->x),
                                      max(i->corner1->y, i->corner2->y)};
-    const twod_pos lower_right_corner{max(i->corner1->x, i->corner2->x),
+    const point lower_right_corner{max(i->corner1->x, i->corner2->x),
                                       max(i->corner1->y, i->corner2->y)};
     auto is_within_bounds{[&min_y_for_x, &max_y_for_x, &min_x_for_y,
-                           &max_x_for_y](const twod_pos &tile) {
+                           &max_x_for_y](const point &tile) {
       return tile.y >= min_y_for_x[tile.x] && tile.y <= max_y_for_x[tile.x] &&
              tile.x >= min_x_for_y[tile.y] && tile.x <= max_x_for_y[tile.y];
     }};

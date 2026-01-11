@@ -5,41 +5,44 @@
 int main() {
   using namespace std;
 
-  struct ingredient_range {
+  struct id_range {
     unsigned long long first_id;
     unsigned long long last_id;
   };
-  vector<ingredient_range> fresh_ingredients;
+  vector<id_range> fresh_ingredients;
   while (cin.good()) {
-    string line;
-    getline(cin, line);
+    string range;
+    getline(cin, range);
     if (cin.bad()) {
-      cerr << "error: could not read line from standard input" << endl;
+      cerr << "error: could not read range from standard input" << endl;
       return 1;
     }
-    if (line.empty())
+    if (range.empty())
       break;
 
-    istringstream range_stream{line};
+    istringstream range_stream{range};
     unsigned long long first_ingredient_id;
     unsigned long long last_ingredient_id;
     range_stream >> first_ingredient_id;
     if (!range_stream) {
-      cerr << "error: could not parse first ID in range" << endl;
+      cerr << "error: could not parse first ID in range `" << range << "`"
+           << endl;
       return 1;
     }
     const auto dash{range_stream.get()};
     if (!range_stream) {
-      cerr << "error: could not parse dash in range" << endl;
+      cerr << "error: could not parse dash in range `" << range << "`" << endl;
       return 1;
     }
     if (dash != '-') {
-      cerr << "error: range is not separated by dash (-)" << endl;
+      cerr << "error: range `" << range << "` is not separated by dash (-)"
+           << endl;
       return 1;
     }
     range_stream >> last_ingredient_id;
     if (!range_stream) {
-      cerr << "error: could not parse last ID in range" << endl;
+      cerr << "error: could not parse last ID in range `" << range << "`"
+           << endl;
       return 1;
     }
 
@@ -49,7 +52,7 @@ int main() {
   bool is_at_least_one_match;
   do {
     is_at_least_one_match = false;
-    vector<ingredient_range> non_overlapping_fresh_ingredients;
+    vector<id_range> non_overlapping_fresh_ingredients;
     for (const auto &fresh_ingredient_range : fresh_ingredients) {
       bool is_match{false};
       for (auto &non_overlapping_fresh_ingredient_range :

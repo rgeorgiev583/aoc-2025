@@ -17,7 +17,9 @@ int main() {
       continue;
 
     if (!lines.empty() && line.size() != lines[0].size()) {
-      cerr << "warning: line has a different number of characters" << endl;
+      cerr << "error: line `" << line
+           << "` has a different number of characters (" << line.size()
+           << ") from " << lines[0].size() << endl;
       return 1;
     }
 
