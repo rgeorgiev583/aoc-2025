@@ -142,13 +142,13 @@ int main() {
   std::optional<unsigned long long> max_area;
   for (auto i{rectangles.rbegin()}; i != rectangles.rend(); i++) {
     const point upper_left_corner{min(i->corner1->x, i->corner2->x),
-                                     min(i->corner1->y, i->corner2->y)};
+                                  min(i->corner1->y, i->corner2->y)};
     const point upper_right_corner{max(i->corner1->x, i->corner2->x),
-                                      min(i->corner1->y, i->corner2->y)};
+                                   min(i->corner1->y, i->corner2->y)};
     const point lower_left_corner{min(i->corner1->x, i->corner2->x),
-                                     max(i->corner1->y, i->corner2->y)};
+                                  max(i->corner1->y, i->corner2->y)};
     const point lower_right_corner{max(i->corner1->x, i->corner2->x),
-                                      max(i->corner1->y, i->corner2->y)};
+                                   max(i->corner1->y, i->corner2->y)};
     auto is_within_bounds{[&min_y_for_x, &max_y_for_x, &min_x_for_y,
                            &max_x_for_y](const point &tile) {
       return tile.y >= min_y_for_x[tile.x] && tile.y <= max_y_for_x[tile.x] &&
