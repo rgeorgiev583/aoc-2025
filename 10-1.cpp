@@ -9,7 +9,7 @@ int main() {
 
   struct machine {
     vector<bool> indicator_light_diagram;
-    vector<vector<int>> button_wiring_schematics;
+    vector<vector<unsigned int>> button_wiring_schematics;
   };
   vector<machine> machines;
   while (cin.good()) {
@@ -24,7 +24,7 @@ int main() {
 
     istringstream machine_stream{machine_str};
 
-    machine &m{machines.emplace_back()};
+    machine &current_machine{machines.emplace_back()};
 
     const auto left_square_bracket{machine_stream.get()};
     if (!machine_stream) {
@@ -47,9 +47,10 @@ int main() {
       return 1;
     }
 
-    m.indicator_light_diagram.reserve(indicator_light_diagram_str.length());
+    current_machine.indicator_light_diagram.reserve(
+        indicator_light_diagram_str.length());
     for (auto indicator_light : indicator_light_diagram_str)
-      m.indicator_light_diagram.push_back(indicator_light == '#');
+      current_machine.indicator_light_diagram.push_back(indicator_light == '#');
 
     while (machine_stream.good()) {
       string button_wiring_schematic_str;
@@ -80,14 +81,14 @@ int main() {
         return 1;
       }
 
-      vector<int> &button_wiring_schematic{
-          m.button_wiring_schematics.emplace_back()};
+      vector<unsigned int> &button_wiring_schematic{
+          current_machine.button_wiring_schematics.emplace_back()};
       while (button_wiring_schematic_stream.good()) {
         string button_indicator_light_str;
         getline(button_wiring_schematic_stream, button_indicator_light_str,
                 ',');
         if (!button_wiring_schematic_stream) {
-          cerr << "error: could not parse indicator light index in button "
+          cerr << "error: could not read indicator light index from button "
                   "wiring schematic `"
                << button_wiring_schematic_str << "` for machine `"
                << machine_str << "`" << endl;
@@ -97,6 +98,19 @@ int main() {
         istringstream button_indicator_light_stream{button_indicator_light_str};
         int button_indicator_light_index;
         button_indicator_light_stream >> button_indicator_light_index;
+        if (!button_indicator_light_stream) {
+          cerr << "error: could not parse indicator light index in button "
+                  "wiring schematic `"
+               << button_wiring_schematic_str << "` for machine `"
+               << machine_str << "`" << endl;
+          return 1;
+        }
+        if (button_indicator_light_index < 0) {
+          cerr << "error: button indicator light index is negative: "
+               << button_indicator_light_index << endl;
+          return 1;
+        }
+
         button_wiring_schematic.push_back(button_indicator_light_index);
       }
     }
@@ -112,22 +126,25 @@ int main() {
     vector<bool> indicator_light_diagram;
     unsigned int num_button_presses;
   };
-  for (const machine &m : machines) {
+  for (const machine &current_machine : machines) {
     queue<machine_state> states;
     machine_state &init_state{states.emplace()};
-    init_state.indicator_light_diagram.resize(m.indicator_light_diagram.size());
+    init_state.indicator_light_diagram.resize(
+        current_machine.indicator_light_diagram.size());
     set<vector<bool>> visited_states;
     visited_states.insert(init_state.indicator_light_diagram);
     machine_state current_state;
     while (!states.empty()) {
       current_state = std::move(states.front());
       states.pop();
-      if (current_state.indicator_light_diagram == m.indicator_light_diagram)
+      if (current_state.indicator_light_diagram ==
+          current_machine.indicator_light_diagram)
         break;
 
-      for (const vector<int> &button : m.button_wiring_schematics) {
+      for (const vector<unsigned int> &button :
+           current_machine.button_wiring_schematics) {
         machine_state new_state{current_state};
-        for (int indicator_light : button)
+        for (unsigned int indicator_light : button)
           new_state.indicator_light_diagram[indicator_light] =
               !new_state.indicator_light_diagram[indicator_light];
 

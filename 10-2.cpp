@@ -8,8 +8,8 @@ int main() {
   using namespace std;
 
   struct machine {
-    vector<vector<int>> button_wiring_schematics;
-    vector<int> joltage_requirements;
+    vector<vector<unsigned int>> button_wiring_schematics;
+    vector<unsigned int> joltage_requirements;
   };
   vector<machine> machines;
   while (cin.good()) {
@@ -24,7 +24,7 @@ int main() {
 
     istringstream machine_stream{machine_str};
 
-    machine &m{machines.emplace_back()};
+    machine &current_machine{machines.emplace_back()};
 
     const auto left_square_bracket{machine_stream.get()};
     if (!machine_stream) {
@@ -82,7 +82,7 @@ int main() {
           string joltage_requirement_str;
           getline(joltage_requirements_stream, joltage_requirement_str, ',');
           if (!joltage_requirements_stream) {
-            cerr << "error: could not parse joltage requirement for machine `"
+            cerr << "error: could not read joltage requirement for machine `"
                  << machine_str << "`" << endl;
             return 1;
           }
@@ -90,7 +90,18 @@ int main() {
           istringstream joltage_requirement_stream{joltage_requirement_str};
           int joltage_requirement;
           joltage_requirement_stream >> joltage_requirement;
-          m.joltage_requirements.push_back(joltage_requirement);
+          if (!joltage_requirement_stream) {
+            cerr << "error: could not parse joltage requirement for machine `"
+                 << machine_str << "`" << endl;
+            return 1;
+          }
+          if (joltage_requirement < 0) {
+            cerr << "error: joltage requirement is negative: "
+                 << joltage_requirement << endl;
+            return 1;
+          }
+
+          current_machine.joltage_requirements.push_back(joltage_requirement);
         }
 
         break;
@@ -102,14 +113,14 @@ int main() {
         return 1;
       }
 
-      vector<int> &button_wiring_schematic{
-          m.button_wiring_schematics.emplace_back()};
+      vector<unsigned int> &button_wiring_schematic{
+          current_machine.button_wiring_schematics.emplace_back()};
       while (button_wiring_schematic_stream.good()) {
         string button_indicator_light_str;
         getline(button_wiring_schematic_stream, button_indicator_light_str,
                 ',');
         if (!button_wiring_schematic_stream) {
-          cerr << "error: could not parse indicator light index in button "
+          cerr << "error: could not read indicator light index from button "
                   "wiring schematic `"
                << button_wiring_schematic_str << "` for machine `"
                << machine_str << "`" << endl;
@@ -119,6 +130,19 @@ int main() {
         istringstream button_indicator_light_stream{button_indicator_light_str};
         int button_indicator_light_index;
         button_indicator_light_stream >> button_indicator_light_index;
+        if (!button_indicator_light_stream) {
+          cerr << "error: could not parse indicator light index in button "
+                  "wiring schematic `"
+               << button_wiring_schematic_str << "` for machine `"
+               << machine_str << "`" << endl;
+          return 1;
+        }
+        if (button_indicator_light_index < 0) {
+          cerr << "error: button indicator light index is negative: "
+               << button_indicator_light_index << endl;
+          return 1;
+        }
+
         button_wiring_schematic.push_back(button_indicator_light_index);
       }
     }
@@ -131,14 +155,14 @@ int main() {
 
   unsigned int total_fewest_button_presses{0};
   struct machine_state {
-    vector<int> joltage_counters;
+    vector<unsigned int> joltage_counters;
     unsigned int num_button_presses;
   };
   for (const machine &m : machines) {
     queue<machine_state> states;
     machine_state &init_state{states.emplace()};
     init_state.joltage_counters.resize(m.joltage_requirements.size());
-    set<vector<int>> visited_states;
+    set<vector<unsigned int>> visited_states;
     visited_states.insert(init_state.joltage_counters);
     machine_state current_state;
     while (!states.empty()) {
@@ -147,9 +171,9 @@ int main() {
       if (current_state.joltage_counters == m.joltage_requirements)
         break;
 
-      for (const vector<int> &button : m.button_wiring_schematics) {
+      for (const vector<unsigned int> &button : m.button_wiring_schematics) {
         machine_state new_state{current_state};
-        for (int joltage_counter : button)
+        for (unsigned int joltage_counter : button)
           new_state.joltage_counters[joltage_counter]++;
 
         if (visited_states.count(new_state.joltage_counters))
