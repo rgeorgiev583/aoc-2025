@@ -30,6 +30,16 @@
                     "ignoreFailures": true
                 }
             ]
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "(lldb) Launch",
+            "program": "${workspaceFolder}/build/${fileBasenameNoExtension}",
+            "stdio": [
+                "${fileBasenameNoExtension}.in"
+            ],
+            "cwd": "${fileDirname}"
         }
     ]
 }
